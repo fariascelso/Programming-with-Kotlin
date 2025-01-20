@@ -5,6 +5,4 @@ Book of Stephen Samuel and Stefan Bocutiu
 
 Novatec - Packt
 
-![image](https://github.com/user-attachments/assets/2e38970d-39a5-447b-be6d-72208859ccd0)
-
-
+![image](https://github.com/user-attachments/assets/699b670a-7515-46ce-b2af-9a43ab7cfa9d)
