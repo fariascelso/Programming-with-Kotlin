@@ -1,0 +1,5 @@
+Funções e Funções literais
+Funções de extensão
+Parâmetros nomeados e parâmetros default
+Sobrecarga de operadores
+Recursão e tail recursion (recursão no final)

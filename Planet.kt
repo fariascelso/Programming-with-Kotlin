@@ -1,0 +1,10 @@
+enum class Planet(val mass: Double, val radius: Double) {
+    MERCURY(3.303E+23, 2.4397E6),
+    VENUS(4.869E+24, 2.4397E6),
+    EARTH(4.869E+24, 2.4397E6),
+    MARS(4.869E+24, 2.4397E6),
+    JUPITER(4.869E+24, 2.4397E6),
+    SATURN(4.869E+24, 2.4397E6),
+    URANUS(4.869E+24, 2.4397E6),
+    NEPTUNE(4.869E+24, 2.4397E6),
+}

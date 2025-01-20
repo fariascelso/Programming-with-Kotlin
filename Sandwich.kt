@@ -1,0 +1,1 @@
+class Sandwich<F1, F2>()

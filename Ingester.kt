@@ -1,0 +1,3 @@
+interface Ingester {
+    fun ingest()
+}

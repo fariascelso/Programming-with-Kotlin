@@ -1,0 +1,1 @@
+class PositiveInteger(value: Int = 0)

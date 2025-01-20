@@ -1,0 +1,153 @@
+[
+    UserManagementRepInviteResponseModel(
+        name=Morgana Meira,
+        email=adela.lowe@marvin.co,
+        cpf=26176249945,
+        phone=11910590674,
+        permissions = [legal_representative, valid_representative],
+        kind=legal_representative,
+        cancelledAt=2023-12-01T12:14:33.092-03:00,
+        acceptedAt=, expiredAt=2023-12-08T12:13:33.293-03:00,
+        inviterId=14,
+        userId=0,
+        clientId=530,
+        createdAt=2023-12-01T12:13:33.293-03:00,
+        updatedAt=2023-12-01T12:13:33.293-03:00,
+        issuerAccessStatus=
+    ),
+
+    UserManagementRepInviteResponseModel(
+        name=Ana Cecília Rezende Neto,
+        email=lawrence@rempelmayer.org,
+        cpf=73744737888, phone=11918574407,
+        permissions=[legal_representative, valid_representative],
+        kind=legal_representative,
+        cancelledAt=,
+        acceptedAt=,
+        expiredAt=2023-12-08T12:14:33.079-03:00,
+        inviterId=14,
+        userId=14,
+        clientId=530,
+        createdAt=2023-12-01T12:14:33.079-03:00,
+        updatedAt=2023-12-01T18:06:12.428-03:00,
+        issuerAccessStatus=
+    ),
+
+    UserManagementRepInviteResponseModel(
+        name=Pérola Taveira Jr.,
+        email=winston@lind.co,
+        cpf=62642060322,
+        phone=11992399954,
+        permissions=[legal_representative, valid_representative],
+        kind=legal_representative,
+        cancelledAt=, acceptedAt=,
+        expiredAt=2023-12-11T11:51:03.897-03:00,
+        inviterId=14,
+        userId=14,
+        clientId=2,
+        createdAt=2023-12-04T11:51:03.897-03:00,
+        updatedAt=2023-12-04T11:51:03.897-03:00,
+        issuerAccessStatus=
+    ),
+
+    UserManagementRepInviteResponseModel(
+        name=Dona Florinda,
+        email=dona.florinda@emailvalido.com.br,
+        cpf=89481885003, phone=11993214321,
+        permissions=[legal_representative, view_transactions],
+        kind=legal_representative,
+        cancelledAt=,
+        acceptedAt=2024-02-23T11:38:33.555-03:00,
+        expiredAt=2024-03-01T11:38:33.205-03:00,
+        inviterId=14,
+        userId=448,
+        clientId=14,
+        createdAt=2024-02-23T11:38:33.205-03:00,
+        updatedAt=2024-02-23T11:38:33.557-03:00,
+        issuerAccessStatus=pending
+    )
+]
+
+package com.useblu.presentationlayer.features.usermanagement.rep.details
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.viewModelScope
+import com.useblu.R
+import com.useblu.components.formatterCpfOrCnpj
+import com.useblu.components.formatterPhone
+import com.useblu.domainlayer.features.indication.model.IndicationType
+import com.useblu.domainlayer.features.usermanagement.rep.UserManagementGetUserInvitesUseCase
+import com.useblu.domainlayer.features.usermanagement.rep.model.UserManagementRepInviteRequestModel
+import com.useblu.presentationlayer.base.BaseViewModel
+import com.useblu.presentationlayer.features.indication.form.IndicationFormFragmentArgs
+import com.useblu.presentationlayer.features.usermanagement.rep.details.model.UserManagementRepDetailsEvent
+import com.useblu.presentationlayer.features.usermanagement.rep.details.model.UserManagementRepDetailsUIState
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.launch
+
+class UserManagementRepDetailsViewModel(
+    override var dispatcherIO: CoroutineDispatcher,
+    private val analytics: UserManagementRepDetailsAnalytics,
+    private val userManagementGetUserInvitesUseCase: UserManagementGetUserInvitesUseCase
+) : BaseViewModel() {
+
+    var uiState by mutableStateOf(UserManagementRepDetailsUIState())
+        private set
+
+    fun onEvent(event: UserManagementRepDetailsEvent) {
+        when (event) {
+            UserManagementRepDetailsEvent.OnClickDismiss -> goBackToHome()
+            UserManagementRepDetailsEvent.OnClickIndicate -> goToInvite()
+            UserManagementRepDetailsEvent.OnClickSendContractSocial -> onClickIndication()
+        }
+    }
+
+    fun trackOpenView() {
+        analytics.trackOpenView()
+    }
+
+    fun getDetailsInvite() {
+        viewModelScope.launch(dispatcherIO) {
+            val params = UserManagementGetUserInvitesUseCase.Params(
+                userManagementRepInviteRequestModel = UserManagementRepInviteRequestModel(
+                    kind = "legal_representative",
+                    issuerAccessStatus = "pending"
+                )
+            )
+
+            val result = userManagementGetUserInvitesUseCase.runAsync(params)
+
+            result.success?.let { response ->
+                val invites = response.invites
+
+                if (invites.isNotEmpty()) {
+                    val lastInvite = invites.last()
+                    uiState = uiState.copy(
+                        name = lastInvite.name,
+                        email = lastInvite.email,
+                        cpfCnpj = lastInvite.cpf.formatterCpfOrCnpj(),
+                        phone = lastInvite.phone.formatterPhone(),
+                        status = lastInvite.status
+                    )
+                }
+            }
+        }
+    }
+
+    private fun onClickIndication() {
+        goToDeepLink(
+            destination = R.id.fragment_social_contract_upload,
+            extras = IndicationFormFragmentArgs(
+                indicationType = IndicationType.BMS
+            ).toBundle()
+        )
+    }
+
+    private fun goToInvite(){
+        goTo(
+            UserManagementRepDetailsFragmentDirections.actionRepDetailsToRepInputData()
+        )
+    }
+}
